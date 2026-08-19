@@ -9,6 +9,7 @@
 #include "DittoPopupWindow.h"
 #include "NTray.h"
 #include "EditFrameWnd.h"
+#include "DittoHttpServer.h"
 
 #define CLOSE_WINDOW_TIMER				1	
 #define HIDE_ICON_TIMER					2
@@ -58,6 +59,7 @@ public:
     #endif 
 
     CQuickPaste m_quickPaste;
+    CDittoHttpServer m_httpServer;
     //CSystemTray m_TrayIcon;
 	CTrayNotifyIcon m_trayIcon;
     ULONG m_ulCopyGap;
