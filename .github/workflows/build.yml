@@ -86,3 +86,5 @@ jobs:
           } else {
             gh release create $tag $installer $portable --target $env:GITHUB_SHA --title $tag --notes $notes
           }
+
+# Actions enabled; this commit triggers the first fork build.
