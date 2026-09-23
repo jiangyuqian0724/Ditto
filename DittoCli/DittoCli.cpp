@@ -5,6 +5,9 @@
 #include "..\\Shared\\DittoCliProtocol.h"
 
 #include <algorithm>
+#include <cwchar>
+#include <fcntl.h>
+#include <io.h>
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
