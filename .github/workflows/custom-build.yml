@@ -40,9 +40,8 @@ jobs:
         run: |
           if (-not (Test-Path "Release64\\Ditto.exe")) { throw "Release64\\Ditto.exe missing" }
           if (-not (Test-Path "Release64\\DittoCli.exe")) { throw "Release64\\DittoCli.exe missing" }
-          & "Release64\\DittoCli.exe" 2>&1 | Out-Host
-          if ($LASTEXITCODE -ne 2) { throw "Unexpected DittoCli usage exit code: $LASTEXITCODE" }
-          $global:LASTEXITCODE = 0
+          & "Release64\\DittoCli.exe" --help
+          if ($LASTEXITCODE -ne 0) { throw "DittoCli --help failed with exit code: $LASTEXITCODE" }
 
       - name: Upload portable binaries
         uses: actions/upload-artifact@v4
