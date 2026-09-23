@@ -1,5 +1,3 @@
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
 #include <windows.h>
 
 #include "..\\Shared\\DittoCliProtocol.h"
@@ -220,9 +218,9 @@ namespace
 		std::fflush(stdout);
 	}
 
-	void Usage(const wchar_t* program)
+	void Usage(FILE* output, const wchar_t* program)
 	{
-		std::fwprintf(stderr,
+		std::fwprintf(output,
 			L"Usage:\n"
 			L"  %ls set TEXT...\n"
 			L"  %ls set -        # read UTF-8 text from stdin\n"
@@ -238,7 +236,7 @@ int wmain(int argc, wchar_t** argv)
 	{
 		if (argc < 2)
 		{
-			Usage(argv[0]);
+			Usage(stderr, argv[0]);
 			return 2;
 		}
 
@@ -247,6 +245,12 @@ int wmain(int argc, wchar_t** argv)
 		for (int i = 0; i < argc; ++i)
 		{
 			args.push_back(WideToUtf8(argv[i]));
+		}
+
+		if ((args[1] == "--help" || args[1] == "-h" || args[1] == "help") && argc == 2)
+		{
+			Usage(stdout, argv[0]);
+			return 0;
 		}
 
 		if (args[1] == "get" && argc == 2)
@@ -269,7 +273,7 @@ int wmain(int argc, wchar_t** argv)
 			return 0;
 		}
 
-		Usage(argv[0]);
+		Usage(stderr, argv[0]);
 		return 2;
 	}
 	catch (const std::exception& e)
