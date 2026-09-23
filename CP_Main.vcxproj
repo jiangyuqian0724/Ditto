@@ -729,6 +729,7 @@
     <ClCompile Include="src\SendMail.cpp" />
     <ClCompile Include="src\SendSocket.cpp" />
     <ClCompile Include="src\Server.cpp" />
+    <ClCompile Include="src\DittoCliServer.cpp" />
     <ClCompile Include="src\ShowTaskBarIcon.cpp" />
     <ClCompile Include="src\SimpleBrowser.cpp" />
     <ClCompile Include="src\SnapWindow.cpp" />
@@ -943,6 +944,8 @@
     <ClInclude Include="src\SendMail.h" />
     <ClInclude Include="src\SendSocket.h" />
     <ClInclude Include="src\Server.h" />
+    <ClInclude Include="src\DittoCliServer.h" />
+    <ClInclude Include="Shared\DittoCliProtocol.h" />
     <ClInclude Include="src\ServerDefines.h" />
     <ClInclude Include="src\ShowTaskBarIcon.h" />
     <ClInclude Include="src\SimpleBrowser.h" />

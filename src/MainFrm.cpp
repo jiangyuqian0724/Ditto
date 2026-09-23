@@ -17,6 +17,7 @@
 #include "OptionsSheet.h"
 #include "DeleteClipData.h"
 #include "DatabaseUtilities.h"
+#include "DittoCliServer.h"
 
 #ifdef _DEBUG
     #define new DEBUG_NEW
@@ -27,6 +28,8 @@
 #define WM_ICON_NOTIFY			WM_APP+10
 #define MYWM_NOTIFYICON (WM_USER+1)
 #define WM_TRAYNOTIFY WM_USER + 100
+
+static CDittoCliServer g_dittoCliServer;
 	
 IMPLEMENT_DYNAMIC(CMainFrame, CFrameWnd)
 
@@ -46,6 +49,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_MESSAGE(WM_CLIPBOARD_COPIED, OnClipboardCopied)
 	ON_WM_CLOSE()
 	ON_MESSAGE(WM_ADD_TO_DATABASE_FROM_SOCKET, OnAddToDatabaseFromSocket)
+	ON_MESSAGE(WM_DITTO_CLI_NOTIFY, OnDittoCliNotify)
 	ON_MESSAGE(WM_SEND_RECIEVE_ERROR, OnErrorOnSendRecieve)
 	ON_MESSAGE(WM_SHOW_ERROR_MSG, OnErrorMsg)
 	ON_COMMAND(ID_FIRST_IMPORT, OnFirstImport)
@@ -145,6 +149,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	
 	m_trayIcon.Create(this, IDR_MENU, _T("Ditto"), CTrayNotifyIcon::LoadIcon(IDR_MAINFRAME), WM_TRAYNOTIFY, 0, 1);
 	m_trayIcon.SetDefaultMenuItem(ID_FIRST_SHOWQUICKPASTE, FALSE);	    
+
+	if (!g_dittoCliServer.Start(m_hWnd))
+	{
+		Log(_T("Failed to start Ditto CLI named-pipe server"));
+	}
 
 	//removed to keep Ditto from taking focus on start
     //m_trayIcon.MinimiseToTray(this);
@@ -967,6 +976,8 @@ void CMainFrame::OnClose()
 
     CloseAllOpenDialogs();
 
+	g_dittoCliServer.Stop();
+
     Log(_T("OnClose - before stop MainFrm thread"));
     m_thread.Stop();
     Log(_T("OnClose - after stop MainFrm thread"));
@@ -1091,6 +1102,12 @@ LRESULT CMainFrame::OnAddToDatabaseFromSocket(WPARAM wParam, LPARAM lParam)
 		}
 	}
 
+	CClip *pReceivedClip = pClipList->GetTail();
+	if (pReceivedClip)
+	{
+		ShowReceivedNotification(pReceivedClip->m_Desc);
+	}
+
 	m_thread.AddRemoteClipToSave(pClipList);
 
 	delete pClipList;
@@ -1186,6 +1203,37 @@ void CMainFrame::ShowEditWnd(CClipIDs& Ids)
 LRESULT CMainFrame::OnEditWndClose(WPARAM wParam, LPARAM lParam)
 {
 	m_pEditFrameWnd = NULL;
+	return TRUE;
+}
+
+void CMainFrame::ShowReceivedNotification(const CString& text)
+{
+	CString body(text);
+	body.TrimRight(_T("\r\n"));
+	if (body.IsEmpty())
+	{
+		body = _T("(non-text clipboard data)");
+	}
+
+	m_trayIcon.SetBalloonDetails(
+		body,
+		_T("\u5DF2\u6536\u5230\u5185\u5BB9"),
+		CTrayNotifyIcon::BalloonStyle::Info,
+		CGetSetOptions::GetBalloonTimeout());
+}
+
+LRESULT CMainFrame::OnDittoCliNotify(WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(wParam);
+
+	auto* text = reinterpret_cast<std::wstring*>(lParam);
+	if (text != nullptr)
+	{
+		CString body(text->c_str());
+		delete text;
+		ShowReceivedNotification(body);
+	}
+
 	return TRUE;
 }
 

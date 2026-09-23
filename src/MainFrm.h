@@ -88,6 +88,7 @@ public:
 	bool PasteQuickPasteEntry(CString csQuickPaste);
     bool SaveQuickPasteEntry(CString csQuickPaste, CClipList *pClipList);
     void ShowErrorMessage(CString csTitle, CString csMessage);
+	void ShowReceivedNotification(const CString& text);
     bool CloseAllOpenDialogs();
 	void DoTextOnlyPaste();
 	void RefreshShowInTaskBar();
@@ -115,6 +116,7 @@ protected:
     afx_msg LRESULT OnShowTrayIcon(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnClipboardCopied(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnAddToDatabaseFromSocket(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnDittoCliNotify(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnErrorOnSendRecieve(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnErrorMsg(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnEditWndClose(WPARAM wParam, LPARAM lParam);
