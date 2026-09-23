@@ -4,6 +4,9 @@
 #include "Misc.h"
 
 #include <algorithm>
+#include <climits>
+#include <cstring>
+#include <cwchar>
 #include <cstdint>
 #include <new>
 #include <vector>
