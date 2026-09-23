@@ -9,6 +9,10 @@ on:
     paths-ignore:
       - '**/*.md'
 
+concurrency:
+  group: custom-ditto-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   SOLUTION_FILE_PATH: CP_Main_10.sln
 
@@ -38,6 +42,7 @@ jobs:
           if (-not (Test-Path "Release64\\DittoCli.exe")) { throw "Release64\\DittoCli.exe missing" }
           & "Release64\\DittoCli.exe" 2>&1 | Out-Host
           if ($LASTEXITCODE -ne 2) { throw "Unexpected DittoCli usage exit code: $LASTEXITCODE" }
+          $global:LASTEXITCODE = 0
 
       - name: Upload portable binaries
         uses: actions/upload-artifact@v4
