@@ -1,0 +1,51 @@
+name: Build custom Ditto + CLI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - feature/ditto-cli-notify
+    paths-ignore:
+      - '**/*.md'
+
+env:
+  SOLUTION_FILE_PATH: CP_Main_10.sln
+
+jobs:
+  build-x64:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore ${{ env.SOLUTION_FILE_PATH }}
+
+      - name: Build Ditto x64
+        run: msbuild ${{ env.SOLUTION_FILE_PATH }} /m /p:Configuration=Release /p:Platform=x64
+
+      - name: Build DittoCli x64
+        run: msbuild DittoCli\\DittoCli.vcxproj /m /p:Configuration=Release /p:Platform=x64
+
+      - name: Smoke test CLI executable
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "Release64\\Ditto.exe")) { throw "Release64\\Ditto.exe missing" }
+          if (-not (Test-Path "Release64\\DittoCli.exe")) { throw "Release64\\DittoCli.exe missing" }
+          & "Release64\\DittoCli.exe" 2>&1 | Out-Host
+          if ($LASTEXITCODE -ne 2) { throw "Unexpected DittoCli usage exit code: $LASTEXITCODE" }
+
+      - name: Upload portable binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ditto-custom-x64
+          if-no-files-found: error
+          path: |
+            Release64\\Ditto.exe
+            Release64\\DittoCli.exe
+            Release64\\ICU_Loader.dll
+            Release64\\Addins\\DittoUtil.dll
